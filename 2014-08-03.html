@@ -1,0 +1,53 @@
+
+This week's Puzzle:
+Take the name of a modern day country add an "A" and rearrange all the letters, you'll name a group of people who used to live in the area of this country.
+
+
+What we know:
+There is a country name, that if we add an A to it, we can rearrange the letters to spell a group of people who used to live in the country.
+
+Some thoughts:
+- Getting a list of countries shouldn't be too hard.
+- Building a list of permutations on countries isn't terrible but long country names could take a significant amount of time.
+- Getting a list of english phrases representing a group of people could be much harder.  
+- We could download the Wikipedia pages for each country.  Odds are good that such a combination could result in what we are looking for.
+- We could use Google search to see if we find results for permutations of the country names + "A".
+
+
+The problem with permutations is going to be size.  It shouldn't be hard to come up with all the permutations of a word programatically, but with country sizes like "Switzerland" we are looking at 11 letters.  That country name alone has 39,916,800 permutations of the name (I looked it up) so to check all of the entries using Google search is going to be painful.  Switzerland causes my algorithm to make 39 million requests.  Ouch!
+
+So that's obviously not the right approach.  
+
+We know that we can do word anagram matching using a sort, so if we could get a list of a group of people we'd be far better off.   So let's think about it.
+
+One way to think about it is indigenous people.  I can get a list of those crowd-sourced (and therefore imperfect at http://en.wikipedia.org/wiki/List_of_indigenous_peoples.  That's not a bad start.  
+
+Let's start with a Hashmap of modern countries, keyed on the sorted string with the A added.  We'll set a few rules here:
+- Case doesn't matter
+- Spaces can be ignored.
+
+We'll go ahead and turn this into a list we save on the file system, because this is not going to be the last time we use it, puzzles often involve country names. 
+
+Building the list of country names:
+We'll read the data from "http://www.textfixer.com/resources/dropdowns/country-list-array.txt" which provided a very nice list of countries.  For each country we'll sort the name removing special characters and call that the "key".  We'll print each as "key":"country name"
+
+
+Building the list of indeginous peoples:
+We will need to parse the DOM and identify the indigenous people.  We can check each one as we go. From the Wikipedia page it appears that each indigenous people is contained in an &lt;li&gt; followed by &lt;b&gt; followed by &lt;a&gt;.  A tool like jQuery would make this easy.  We'd simply use $("li b a").text();  
+
+Result:
+Nothing found!  The algorithm looked good, but there's any number of problems we could have encountered here.  
+- The people being sought are not indigenous people, that is a very real possibility as it could be something along the lines of the British and the citizens of the US.  The British were a people in the US, but they are not anymore.  They aren't indigenous.
+- The Wikipedia page is missing items, which is a good possibility, no one is perfect.  
+- We missed some elements.
+- Some entries included sub data, which fooled our search.  An eyeball check shows entries such as "The people of "
+
+After testing a few webpages, using the same algorithm we do find an entry:
+
+Guyana | Guayana
+
+But this doesn't seem right.  First, Guyana's wikipedia entry makes it sound like this is a contested country.  Far too obscure an answer.  
+
+The actual answer:  
+Netherlands Neanderthals
+

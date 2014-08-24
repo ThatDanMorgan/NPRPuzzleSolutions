@@ -1,0 +1,36 @@
+You have a target with 6 rings bearing the numbers 16 17 23 24 39 40.  How can you score exactly 100 points by shooting at the target.
+
+
+What we know:
+-  This is going to be easy for a computer.  There aren't too many permutations as any time we go over 100, we can throw out a permuation.    
+- There are a limited number of permuations, but we also know that this is easy to get off track.
+
+Let's try a brute force method first: it's a simple set of recurisve logic.  Essentially we have a function that cycles through the loop, and tries adding each value and if the new value is less than 100, we send that value through again.  
+
+20 minutes to code up with a recursive method that took less than a millisecond to run.
+Answer:
+17 + 17 + 17 + 17 + 16 + 16
+
+And this is a small number set to work with really.   We can't have over 6 values, so the function can't grow quickly enough to see how incredibly inefficient this solution actually would have been had there been a far larger number of entries to get us to where we need to go.
+
+At first, a graph seems like a natural fit for this problem.  Things like depth first search, and breadth first search again seem good.  My first thoughts on this in fact were to try something along the lines of depth first trying to use big numbers.  Breadth first might be the way to go, as it turned out we needed many numbers.  
+
+Knowing what we know now, it seems like a trying to get a combinations with 6 numbers would be rather useful.  And we could easily start with the smallest numbers trying to get the smallest numbers to add up.  But, we didn't know that.  It could have just been A + A + D.  
+
+What about numbers?   What we really want to do is think of good combinations of numbers that add up to 100.  
+
+40 + 60 is 100.  But none of the numbers we have add up to 60 in any combination.  
+39 + 61 is 100.  But again we have no way to get to 61.
+
+If we look there's something interesting happening there.  We can toss out the 40 and 39 pretty quickly.  If we knew that, we could pop them out of the list.  
+
+The trouble with optimizing this, is we keep ending up with the same number of operations, because the overall solution was in fact a worst case scenario.  
+
+
+
+
+
+
+
+
+

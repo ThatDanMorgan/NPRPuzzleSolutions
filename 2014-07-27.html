@@ -1,0 +1,134 @@
+
+
+<p>This week's puzzle:</p>
+
+<h2>Understanding the puzzle</h2>
+<p>So starting with what we know:
+    <ul>
+        <li>We know that there exists three popular men's names that, if we eliminate the first letter they are identical.  To simplify with a fake word: XABCDE YABCDE ZABCDE would all work.</li>
+        <li>Only One of the three names starts with an vowel.  That's going to be useful because we can use it for divide and conquer.</li>
+    </ul>
+</p>
+<p>
+My initial conclusions:
+    <ul>
+        <li>We need a list of popular men's names.  We can likely find that on the web.  It's a little bit of cheating of course.  So if we solve this one quickly, maybe we'll go back and try to find a way to build that list without someone having solved that problem already.</li>
+        <li>When parsing a list of names we know that we can filter out any name that is not 6 letters.  That reduces our sample size significantly.</li>
+        <li>If we reverse the names they are now identical except for the LAST letter.  So a sorted list is going to make our lives significantly easier.</li>
+        <li>We could break it into two lists: names starting with vowels, and names which do not start with vowels.   If we assume that most names start with consonants, we can conclude that the list of names with vowels is smaller.  That means we can parse the smaller list against the larger list.</li>  
+</p>
+
+<h2>Step One: Getting the list of names.<h2>
+<p>So first, let's do a search on the web for a list of popular men's names. And it looks like a lot of folks keep lists of names with the majority seeming to be split between baby names and geneaology.  I'm going to favor the geneaology results because it feels like it is more inline.</p>
+<p>Some searching led me to <a href="http://www.galbithink.org/names/us200.htm">http://www.galbithink.org/names/us200.htm</a>.  That site lists list of the top 1000 names for each decade in the US in text form.  That simplifies our coding, because reading text is going to be a lot faster that parsing DOM code.</p>
+
+<h2>Step Two: First algorithm</h2>
+<p>Now we'll generate an algorithm based on my conclusions.</p>
+<pre class="pseudocode">
+For each file
+    Open File
+        For each line
+            Read Line
+                Array = Split at ","
+                TestString = Array[0]
+                if TestString.length == 6 
+                    TestString = reverse (TestString)
+                    if(TestString[5] == VOWEL)
+                        Save in Sorted Vowel Array
+                    else
+                        Save in Sorted Consonant Array
+</pre>
+<p>
+That gives us two sorted arrays, but it would give us duplicates and it requires a search at the end to take our collated list and match it.  It would be great to just short circuit things once we find which leads me to the conclusion that there is likely a simpler way, with less code to get to the same solution.    
+</p>
+
+<h2>Step Three: Second algorithm</h2>
+What if we created a map of keys where the keys where the last five letters and the data was an array of unique first letters?  If we ever get to an array of length three we are done.  This reduces the number of loops and should short circuit the second we find the answer.    
+<pre class="pseudocode">
+Map = new Map()
+For each file
+    Open File
+        For each line
+            Read Line
+                Array = Split at ","
+                TestString = Array[0]
+                if TestString.length == 6 
+                    Key = TestString.substring(1) // Gets us the last five characters.
+                    Value = TestString[0]
+                    Sample = Map.get(Key)
+                    if(Sample != null)
+                        Sample = Map.set(new Array)
+                    if !Sample.contains(Value)
+                        Sample.append(Value)
+                    if(Sample.length == 3)
+                        Return answer                        
+                    
+</pre>
+<p>
+That looks pretty good and shouldn't take up more memory than the original solution we proposed.  It also uses the nature of Map structures to quickly solve the problem.
+</p>
+
+
+<h2>Step Four: Implementing with Java</h2>
+<p>I'm working to get my Java skills back to their original levels, so for a first implementation pass, I'll start with Java and possibly port to another language.  And as I started coding this, I am reminded of that Eclipse is one heck of a tool, because remembering all the imports, and the fact that I need to define that I want to use a HashMap, or a StringBuffer is rather annoying.</p>
+
+<p>After coding up the solution I uncovered an interesting side effect.  My first implementation followed the algorithm above and actually forgot the requirement that one name must be start with a vowel, by removing the short circuit in the code, I came up with the following answers:</p>
+
+<table>
+    <tr><td>
+Lonnie<br/>
+Donnie<br/>
+Connie<br/>
+    <td></td>
+Milton<br/>
+Hilton<br/>
+Wilton<br/>
+    <td></td>
+Felton<br/>
+Delton<br/>
+Melton<br/>
+    <td></td>
+Justin<br/>
+Austin<br/>
+Dustin<br/>
+    <td></td>
+Bennie<br/>
+Dennie<br/>
+Lennie<br/>
+    <td></td>
+Gaylon<br/>
+Waylon<br/>
+Jaylon<br/>
+    </td></tr>
+</table>
+<p> That leads me to conclude that there is a good reason that Wil made the requirement for two of the names to start with a consonant.  But that my algorithm needed one more step, to ensure that my "array" (I actually used a StringBuffer) had a vowel in it.  So I added some logic to do that.</p>
+
+<p>The final code block can be found at:</p>
+
+<p>
+The answer (from my code) is
+    <div class="answer">
+        <span>Dustin</span>
+        <span>Austin</span>
+        <span>Justin</span>
+    </div>
+</p>
+
+<h2>Analysis of the solution</h2>
+<p>
+    The solution was found quickly and helped greatly by the fact that I didn't need to gather my own census data.  Further the requirement of "popular first names" meant that the solution isn't really a great test of the code.  The code short circuited in the first file (proving we were right to add that logic) and was limited to a length of 1000.   While being in the top 1000 names of the past 5 decades is my definition of popular, it may not have been the right answer.  It is therefore possible that in a data set of 1 million or 1 billion distinct names I could run into some real performance issues.
+</p>
+<p>
+    The HashMap is really where things make me nervous.  Just reading the code, it looks completely linear.  Cycle through the list one time until we find three matches.  I've got many documents that tell me a HashMap implementation is O(1)and the loop is O(n) so that's still O(n) time right.  However, it still seems like a HashMap is doing a key lookup which is still a search.  So there is a cost.
+</p>
+<p>
+    So what about where I got the data from?  If I didn't have someone who compiled a list of popular names, how could I have solved this?  That is something I considered, and I think I would likely need to go through obituaries in large cities to build a list of names.  I didn't do the research, but I'd be that the NY Times obituaries would contain a Dustin, Justin and Austin within at least the last decade.  Parsing that data could be far more difficult however, and I would need a tool.  (I had planned on using PhantomJS if I needed to go that route.)
+</p>
+
+
+
+
+
+
+
+
